@@ -2413,6 +2413,7 @@ dependencies = [
 name = "wic"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bitcoin",
  "ldk-node",
  "lightning 0.2.0+git",

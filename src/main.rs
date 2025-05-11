@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use bitcoin::{
     Address, BlockHash, FeeRate, Network, bip32::Xpriv, constants::ChainHash, params::Params,
 };
@@ -60,7 +61,7 @@ impl Logger for NLogger {
     fn log(&self, _record: Record) {}
 }
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
     let ldk_dir = match args.get(1) {
         Some(dir) => dir,
@@ -74,23 +75,18 @@ fn main() {
         ldk_dir.into(),
         Some(SQLITE_DB_FILE_NAME.to_string()),
         Some(KV_TABLE_NAME.to_string()),
-    )
-    .unwrap();
+    )?;
 
-    let res = ldk_store
-        .read(
-            CHANNEL_MANAGER_PERSISTENCE_PRIMARY_NAMESPACE,
-            CHANNEL_MANAGER_PERSISTENCE_SECONDARY_NAMESPACE,
-            CHANNEL_MANAGER_PERSISTENCE_KEY,
-        )
-        .unwrap();
+    let res = ldk_store.read(
+        CHANNEL_MANAGER_PERSISTENCE_PRIMARY_NAMESPACE,
+        CHANNEL_MANAGER_PERSISTENCE_SECONDARY_NAMESPACE,
+        CHANNEL_MANAGER_PERSISTENCE_KEY,
+    )?;
 
-    let seed = read_or_generate_seed_file(format!("{}/keys_seed", ldk_dir)).unwrap();
-    let cur_time = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap();
+    let seed = read_or_generate_seed_file(format!("{}/keys_seed", ldk_dir))?;
+    let cur_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
 
-    let xprv = Xpriv::new_master(Network::Regtest, &seed).unwrap();
+    let xprv = Xpriv::new_master(Network::Regtest, &seed)?;
     let keys_manager = &KeysManager::new(
         &xprv.private_key.secret_bytes(),
         cur_time.as_secs(),
@@ -100,18 +96,19 @@ fn main() {
     let mut reader = Cursor::new(res);
 
     // stuff to read before reading the channel count
-    let _v: u8 = Readable::read(&mut reader).unwrap();
-    let _v: u8 = Readable::read(&mut reader).unwrap();
-    let _c: ChainHash = Readable::read(&mut reader).unwrap();
-    let _bh: u32 = Readable::read(&mut reader).unwrap();
-    let _bh: BlockHash = Readable::read(&mut reader).unwrap();
+    let _: u8 = Readable::read(&mut reader).map_err(|e| anyhow!("error reading {e}"))?;
+    let _: u8 = Readable::read(&mut reader).map_err(|e| anyhow!("error reading {e}"))?;
+    let _: ChainHash = Readable::read(&mut reader).map_err(|e| anyhow!("error reading {e}"))?;
+    let _: u32 = Readable::read(&mut reader).map_err(|e| anyhow!("error reading {e}"))?;
+    let _: BlockHash = Readable::read(&mut reader).map_err(|e| anyhow!("error reading {e}"))?;
 
     let mut user_conf = UserConfig::default();
     user_conf
         .channel_handshake_config
         .negotiate_anchors_zero_fee_htlc_tx = true;
 
-    let channel_count: u64 = Readable::read(&mut reader).unwrap();
+    let channel_count: u64 =
+        Readable::read(&mut reader).map_err(|e| anyhow!("error reading {e}"))?;
     for _ in 0..channel_count {
         let chan = FundedChannel::read(
             &mut reader,
@@ -121,7 +118,7 @@ fn main() {
                 &provided_channel_type_features(&user_conf),
             ),
         )
-        .unwrap();
+        .map_err(|e| anyhow!("error reading channel {e}"))?;
 
         let logger = Arc::new(NLogger {});
 
@@ -149,7 +146,7 @@ fn main() {
             println!("    Script PubKey: {}", output.script_pubkey);
             println!(
                 "    Address: {}\n",
-                Address::from_script(&output.script_pubkey, Params::new(Network::Regtest)).unwrap()
+                Address::from_script(&output.script_pubkey, Params::new(Network::Regtest))?
             );
         }
 
@@ -248,7 +245,7 @@ fn main() {
             println!("    Script Pubkey: {}", output.script_pubkey);
             println!(
                 "    Address: {}\n",
-                Address::from_script(&output.script_pubkey, Params::new(Network::Regtest)).unwrap()
+                Address::from_script(&output.script_pubkey, Params::new(Network::Regtest))?
             );
         }
 
@@ -256,4 +253,5 @@ fn main() {
             "---------------------------------------------------------------------------------------------------"
         );
     }
+    Ok(())
 }
