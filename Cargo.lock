@@ -1190,6 +1190,7 @@ dependencies = [
 [[package]]
 name = "lightning"
 version = "0.2.0+git"
+source = "git+https://github.com/elnosh/rust-lightning.git?rev=b65b6d2#b65b6d24654f8c695f91152f3f9cd625a367355d"
 dependencies = [
  "bech32",
  "bitcoin",
@@ -1200,7 +1201,7 @@ dependencies = [
  "lightning-macros 0.2.0+git",
  "lightning-types 0.3.0+git",
  "musig2",
- "possiblyrandom 0.2.0",
+ "possiblyrandom 0.2.0 (git+https://github.com/elnosh/rust-lightning.git?rev=b65b6d2)",
 ]
 
 [[package]]
@@ -1244,6 +1245,7 @@ dependencies = [
 [[package]]
 name = "lightning-invoice"
 version = "0.34.0+git"
+source = "git+https://github.com/elnosh/rust-lightning.git?rev=b65b6d2#b65b6d24654f8c695f91152f3f9cd625a367355d"
 dependencies = [
  "bech32",
  "bitcoin",
@@ -1279,6 +1281,7 @@ dependencies = [
 [[package]]
 name = "lightning-macros"
 version = "0.2.0+git"
+source = "git+https://github.com/elnosh/rust-lightning.git?rev=b65b6d2#b65b6d24654f8c695f91152f3f9cd625a367355d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1345,6 +1348,7 @@ dependencies = [
 [[package]]
 name = "lightning-types"
 version = "0.3.0+git"
+source = "git+https://github.com/elnosh/rust-lightning.git?rev=b65b6d2#b65b6d24654f8c695f91152f3f9cd625a367355d"
 dependencies = [
  "bitcoin",
 ]
@@ -1513,6 +1517,8 @@ checksum = "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c"
 [[package]]
 name = "possiblyrandom"
 version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b122a615d72104fb3d8b26523fdf9232cd8ee06949fb37e4ce3ff964d15dffd"
 dependencies = [
  "getrandom 0.2.16",
 ]
@@ -1520,8 +1526,7 @@ dependencies = [
 [[package]]
 name = "possiblyrandom"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b122a615d72104fb3d8b26523fdf9232cd8ee06949fb37e4ce3ff964d15dffd"
+source = "git+https://github.com/elnosh/rust-lightning.git?rev=b65b6d2#b65b6d24654f8c695f91152f3f9cd625a367355d"
 dependencies = [
  "getrandom 0.2.16",
 ]
